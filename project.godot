@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="global-plugins"
+config/name="globalize-plugins"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -20,7 +20,7 @@ project/assembly_name="embedded-player"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/explore-editor-theme/plugin.cfg", "res://addons/global-plugins/plugin.cfg", "res://addons/themesheet/plugin.cfg")
+enabled=PackedStringArray("res://addons/themesheet/plugin.cfg")
 
 [rendering]
 
