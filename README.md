@@ -1,12 +1,15 @@
 This plugin lets you "globalize" plugins. It adds an Editor setting which holds a list of plugin paths. 
 Then, whenever *this* plugin is loaded, *those* plugins are copied into the current project and are enabled.
 
+Available in the asset library as ***Globalize Plugins***: 
+https://godotengine.org/asset-library/asset/2681
+
 ## Instructions:
 1. Download and enable this plugin
 2. Go to **Editor > EditorSettings > Global Plugins > Paths**
 3. Add a new item and click the folder icon
 4. Navigate to the `plugin.cfg` of the plugin you want to globalize and select it
-5. In your other projects just add & enable this plugin (from the asset store if this gets approved, or by manually copying into projects)
+5. In your other projects just add & enable this plugin (from the asset library ideally)
 
 Now, whenever you load a project with this plugin enabled, all globalized plugins will automatically be copied into the project. This keeps them up to date, and adds any new plugins you may have globalized since the last load.
 
