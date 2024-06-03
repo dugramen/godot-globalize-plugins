@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="globalize-plugins"
+run/main_scene="res://addons/globalize-plugins/asset_panel.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -20,7 +21,7 @@ project/assembly_name="embedded-player"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/themesheet/plugin.cfg")
+enabled=PackedStringArray("res://addons/globalize-plugins/plugin.cfg")
 
 [rendering]
 

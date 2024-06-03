@@ -1,0 +1,65 @@
+[gd_scene load_steps=4 format=3 uid="uid://dflha7n3pdaeu"]
+
+[ext_resource type="Texture2D" uid="uid://be8c3g2lr53td" path="res://icon.svg" id="1_rqll3"]
+[ext_resource type="Script" path="res://addons/globalize-plugins/asset_panel.gd" id="1_ytvys"]
+[ext_resource type="Texture2D" uid="uid://681m42uc8vit" path="res://globalize-plugin.png" id="2_7y28y"]
+
+[node name="PopupPanel" type="PopupPanel"]
+size = Vector2i(618, 459)
+visible = true
+script = ExtResource("1_ytvys")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 614.0
+offset_bottom = 455.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Search"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ItemContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+
+[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
+layout_mode = 2
+text = "Plugin Name
+- dugramen"
+icon = ExtResource("2_7y28y")
+alignment = 0
+expand_icon = true
+
+[node name="Button2" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
+layout_mode = 2
+text = "Plugin Name
+- dugramen"
+icon = ExtResource("1_rqll3")
+alignment = 0
+
+[node name="Button3" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
+layout_mode = 2
+text = "Plugin Name
+- dugramen"
+icon = ExtResource("1_rqll3")
+alignment = 0
+
+[node name="Button4" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
+layout_mode = 2
+text = "Plugin Name
+- dugramen"
+icon = ExtResource("1_rqll3")
+alignment = 0
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[connection signal="text_submitted" from="MarginContainer/VBoxContainer/LineEdit" to="." method="_on_line_edit_text_submitted"]
