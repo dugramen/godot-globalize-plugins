@@ -1,6 +1,9 @@
 @tool
 extends EditorPlugin	
 
+var asset_lib: Node
+#var globalize_icon := preload("res://globalize-plugin.png")
+
 func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
 	
@@ -64,7 +67,27 @@ func globalize_local_plugins():
 		, CONNECT_ONE_SHOT)
 
 func inject_globalize_button_assetlib():
-	pass
+	var main_screen := EditorInterface.get_editor_main_screen()
+	for child in main_screen.get_children():
+		if child.name.begins_with("@EditorAssetLibrary"):
+			asset_lib = child
+			asset_lib.child_entered_tree.connect(on_assetlib_child)
+			break
+			
+
+func on_assetlib_child(child: Node):
+	if child.name.begins_with("@EditorAssetLibraryItemDescription"):
+		#print("asset window found")
+		await get_tree().process_frame
+		var container: HBoxContainer = child.get_child(2, true)
+		if container:
+			#print("adding buttons")
+			var right_c := Control.new()
+			var asset_button := Button.new()
+			container.add_child(asset_button)
+			container.add_child(right_c)
+			asset_button.text = "Globalize"
+			right_c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 func _enter_tree():
 	#globalize_local_plugins()
@@ -72,4 +95,7 @@ func _enter_tree():
 	pass
 
 func _exit_tree():
+	if is_instance_valid(asset_lib):
+		if asset_lib.child_entered_tree.is_connected(on_assetlib_child):
+			asset_lib.child_entered_tree.disconnect(on_assetlib_child)
 	pass
