@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://be8c3g2lr53td" path="res://icon.svg" id="1_rqll3"]
 [ext_resource type="Script" path="res://addons/globalize-plugins/asset_panel.gd" id="1_ytvys"]
-[ext_resource type="Texture2D" uid="uid://681m42uc8vit" path="res://globalize-plugin.png" id="2_7y28y"]
+[ext_resource type="Texture2D" uid="uid://681m42uc8vit" path="res://addons/globalize-plugins/globalize-plugin.png" id="2_7y28y"]
 
 [node name="PopupPanel" type="PopupPanel"]
 size = Vector2i(618, 459)

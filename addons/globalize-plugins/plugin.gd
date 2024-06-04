@@ -2,7 +2,7 @@
 extends EditorPlugin	
 
 var asset_lib: Node
-#var globalize_icon := preload("res://globalize-plugin.png")
+var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
 
 func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
@@ -87,6 +87,8 @@ func on_assetlib_child(child: Node):
 			container.add_child(asset_button)
 			container.add_child(right_c)
 			asset_button.text = "Globalize"
+			asset_button.icon = globalize_icon
+			asset_button.add_theme_constant_override("icon_max_width", 24)
 			right_c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 func _enter_tree():
