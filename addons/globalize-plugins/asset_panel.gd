@@ -6,7 +6,7 @@ extends PopupPanel
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://addons/globalize-plugins/hello/word/there/pro/"))
+	#DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://addons/globalize-plugins/hello/word/there/pro/"))
 	pass # Replace with function body.
 
 

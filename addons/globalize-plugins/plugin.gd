@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin	
 
-func _enter_tree():
+func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
 	
 	# Add property hints to the EditorSettings, for file picking
@@ -62,6 +62,14 @@ func _enter_tree():
 				if !already_exists:
 					EditorInterface.set_plugin_enabled(folder, true)
 		, CONNECT_ONE_SHOT)
+
+func inject_globalize_button_assetlib():
+	pass
+
+func _enter_tree():
+	#globalize_local_plugins()
+	inject_globalize_button_assetlib()
+	pass
 
 func _exit_tree():
 	pass
