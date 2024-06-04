@@ -1,8 +1,10 @@
 @tool
-extends EditorPlugin	
+extends EditorPlugin
 
 var asset_lib: Node
 var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
+var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
+var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
 
 func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
@@ -66,6 +68,58 @@ func globalize_local_plugins():
 					EditorInterface.set_plugin_enabled(folder, true)
 		, CONNECT_ONE_SHOT)
 
+
+func fetch_asset(asset_id):
+	var _http := HTTPRequest.new()
+	add_child(_http)
+	var err := _http.request("https://godotengine.org/asset-library/api/asset/%s" % asset_id)
+	_http.request_completed.connect(
+		func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
+			if result != HTTPRequest.RESULT_SUCCESS:
+				push_error("Failed to get asset ", asset_id)
+				return
+			var data = JSON.parse_string(body.get_string_from_utf8())
+			print(data)
+			download_asset(data)
+	)
+
+func download_asset(asset: Dictionary):
+	var _http := HTTPRequest.new()
+	add_child(_http)
+	var err := _http.request(asset.download_url)
+	_http.request_completed.connect(
+		func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
+			if result != HTTPRequest.RESULT_SUCCESS:
+				push_error("Download failed from ", asset.download_url)
+				return
+			var base_path := "res://addons/globalize-plugins/temp/"
+			var file_path: String = base_path + "download.zip"
+			#var file_path: String = "res://addons/globalize-plugins/temp/" + asset.title + ".zip"
+			var file := FileAccess.open(file_path, FileAccess.WRITE)
+			file.store_buffer(body)
+			
+			file.close()
+			var zipper := ZIPReader.new()
+			zipper.open(file_path)
+			var zipped_files := zipper.get_files()
+			for path in zipped_files:
+				var content := zipper.read_file(path)
+				var final_path := base_path + path
+				var g_path := ProjectSettings.globalize_path(final_path)
+				print(final_path)
+				DirAccess.remove_absolute(g_path)
+				if final_path.ends_with("/"):
+					print(g_path)
+					err = DirAccess.make_dir_recursive_absolute(g_path)
+					if err != OK:
+						push_error("Could not make directory ", final_path)
+				else:
+					var zfile := FileAccess.open(base_path + path, FileAccess.WRITE)
+					zfile.store_buffer(content)
+					zfile.close()
+			zipper.close()
+	)
+
 func inject_globalize_button_assetlib():
 	var main_screen := EditorInterface.get_editor_main_screen()
 	for child in main_screen.get_children():
@@ -90,6 +144,15 @@ func on_assetlib_child(child: Node):
 			asset_button.icon = globalize_icon
 			asset_button.add_theme_constant_override("icon_max_width", 24)
 			right_c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			
+			var asset_panel: PopupPanel = asset_panel_scene.instantiate() as PopupPanel
+			asset_panel.visible = false
+			asset_button.add_child(asset_panel)
+			asset_button.pressed.connect(asset_panel.popup_centered)
+			asset_panel.asset_id_pressed.connect(on_asset_download_pressed)
+
+func on_asset_download_pressed(id):
+	print("downloading id ", id)
 
 func _enter_tree():
 	#globalize_local_plugins()

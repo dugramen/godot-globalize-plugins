@@ -1,8 +1,12 @@
 @tool
 extends PopupPanel
 
+signal asset_id_pressed(asset_id: int)
+
 @onready var http := $HTTPRequest
 @onready var item_container := %ItemContainer
+@onready var line_edit := $MarginContainer/VBoxContainer/LineEdit
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -48,7 +52,8 @@ func spawn_items(items: Array):
 			#print(item)
 			button.add_theme_constant_override("icon_max_width", 32)
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			button.pressed.connect(on_item_pressed.bind(item))
+			button.pressed.connect(func(): asset_id_pressed.emit(item.asset_id))
+			#button.pressed.connect(on_item_pressed.bind(item.asset_id))
 			
 			if item.has("icon_url"):
 				var _http := HTTPRequest.new()
@@ -68,52 +73,3 @@ func spawn_items(items: Array):
 								button.icon = texture
 				)
 
-func on_item_pressed(item: Dictionary):
-	var _http := HTTPRequest.new()
-	add_child(_http)
-	var err := _http.request("https://godotengine.org/asset-library/api/asset/%s" % item.asset_id)
-	_http.request_completed.connect(
-		func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-			if result != HTTPRequest.RESULT_SUCCESS:
-				push_error("Failed to get asset ", item.asset_id, ' ', item.title)
-				return
-			var data = JSON.parse_string(body.get_string_from_utf8())
-			print(data)
-			on_asset_data(data)
-	)
-
-func on_asset_data(asset: Dictionary):
-	var _http := HTTPRequest.new()
-	add_child(_http)
-	var err := _http.request(asset.download_url)
-	_http.request_completed.connect(
-		func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-			if result != HTTPRequest.RESULT_SUCCESS:
-				push_error("Download failed from ", asset.download_url)
-				return
-			var base_path := "res://addons/globalize-plugins/temp/"
-			var file_path: String = base_path + "download.zip"
-			#var file_path: String = "res://addons/globalize-plugins/temp/" + asset.title + ".zip"
-			var file := FileAccess.open(file_path, FileAccess.WRITE)
-			file.store_buffer(body)
-			file.close()
-			var zipper := ZIPReader.new()
-			zipper.open(file_path)
-			var zipped_files := zipper.get_files()
-			for path in zipped_files:
-				var content := zipper.read_file(path)
-				var final_path := base_path + path
-				var g_path := ProjectSettings.globalize_path(final_path)
-				print(final_path)
-				DirAccess.remove_absolute(g_path)
-				if final_path.ends_with("/"):
-					print(g_path)
-					err = DirAccess.make_dir_recursive_absolute(g_path)
-					if err != OK:
-						push_error("Could not make directory ", final_path)
-				else:
-					var zfile := FileAccess.open(base_path + path, FileAccess.WRITE)
-					zfile.store_buffer(content)
-					zfile.close()
-			zipper.close()
-	)
