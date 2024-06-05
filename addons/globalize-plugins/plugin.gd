@@ -5,6 +5,9 @@ var asset_lib: Node
 var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
 var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
 var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
+const project_settings_key := "global_plugins/saved"
+
+var current_plugin_data: Dictionary = {}
 
 func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
@@ -172,9 +175,20 @@ func on_assetlib_child(child: Node):
 			asset_panel.asset_id_pressed.connect(on_asset_download_pressed)
 
 func on_asset_download_pressed(id):
-	print("downloading id ", id)
+	fetch_asset(id)
+
+func setup_project_settings():
+	current_plugin_data = ProjectSettings.get_setting(project_settings_key, {})
+	ProjectSettings.set_setting(project_settings_key, current_plugin_data)
+	ProjectSettings.add_property_info({
+		"name" = project_settings_key,
+		"type" = TYPE_DICTIONARY,
+	})
+	ProjectSettings.set_initial_value(project_settings_key, {})
+	ProjectSettings.set_as_internal(project_settings_key, true)
 
 func _enter_tree():
+	setup_project_settings()
 	#globalize_local_plugins()
 	inject_globalize_button_assetlib()
 	pass
