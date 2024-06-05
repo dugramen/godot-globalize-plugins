@@ -5,25 +5,29 @@ var asset_lib: Node
 var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
 var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
 var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
+
+const editor_local_key := "global_plugins/paths"
+const editor_asset_key := "global_plugins/assets"
 const project_settings_key := "global_plugins/saved"
 
 var current_plugin_data: Dictionary = {}
+var global_plugin_data: Dictionary = {}
 
 func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
 	
 	# Add property hints to the EditorSettings, for file picking
 	var property_info = {
-		"name": "global_plugins/paths",
+		"name": editor_local_key,
 		"type": TYPE_ARRAY,
 		"hint": PROPERTY_HINT_TYPE_STRING,
 		"hint_string": "%d/%d:plugin.cfg" % [TYPE_STRING, PROPERTY_HINT_GLOBAL_FILE]
 	}
 	settings.add_property_info(property_info)
-	if !settings.has_setting("global_plugins/paths"):
-		settings.set_setting("global_plugins/paths", [])
+	if !settings.has_setting(editor_local_key):
+		settings.set_setting(editor_local_key, [])
 	
-	var paths: Array = settings.get_setting("global_plugins/paths")
+	var paths: Array = settings.get_setting(editor_local_key)
 	var project_path := ProjectSettings.globalize_path("res://")
 	
 	# Load plugins at paths
@@ -85,24 +89,6 @@ func fetch_and_install_asset(asset_id):
 		print(data)
 		await download_asset(data)
 	await handler.callv(response)
-	
-	#var result = response[0]
-	#var body = response[3]
-	#if result != HTTPRequest.RESULT_SUCCESS:
-		#push_error("Failed to get asset ", asset_id)
-		#return
-	#var data = JSON.parse_string(body.get_string_from_utf8())
-	#print(data)
-	#await download_asset(data)
-	#_http.request_completed.connect(
-		#func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-			#if result != HTTPRequest.RESULT_SUCCESS:
-				#push_error("Failed to get asset ", asset_id)
-				#return
-			#var data = JSON.parse_string(body.get_string_from_utf8())
-			#print(data)
-			#download_asset(data)
-	#)
 
 func download_asset(asset: Dictionary):
 	var _http := HTTPRequest.new()
@@ -119,18 +105,6 @@ func download_asset(asset: Dictionary):
 		file.close()
 		await unzip_asset(file_path)
 	await handler.callv(response)
-	
-	#_http.request_completed.connect(
-		#func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-			#if result != HTTPRequest.RESULT_SUCCESS:
-				#push_error("Download failed from ", asset.download_url)
-				#return
-			##var file_path: String = base_path + "download.zip"
-			#var file_path: String = "res://addons/globalize-plugins/temp/" + asset.title + ".zip"
-			#var file := FileAccess.open(file_path, FileAccess.WRITE)
-			#file.store_buffer(body)
-			#file.close()
-	#)
 
 func unzip_asset(file_path):
 	var zipper := ZIPReader.new()
@@ -229,7 +203,22 @@ func setup_project_settings():
 	ProjectSettings.set_initial_value(project_settings_key, {})
 	ProjectSettings.set_as_internal(project_settings_key, true)
 
+func setup_editor_settings():
+	var editor_settings := EditorInterface.get_editor_settings()
+	if editor_settings.has_setting(editor_asset_key):
+		global_plugin_data = editor_settings.get_setting(editor_asset_key)
+	else:
+		global_plugin_data = {}
+		editor_settings.set_setting(editor_asset_key, global_plugin_data)
+	editor_settings.set_setting(editor_asset_key, global_plugin_data)
+	editor_settings.add_property_info({
+		"name" = editor_asset_key,
+		"type" = TYPE_DICTIONARY
+	})
+	editor_settings.set_initial_value(editor_asset_key, {}, false)
+
 func _enter_tree():
+	setup_editor_settings()
 	setup_project_settings()
 	#globalize_local_plugins()
 	inject_globalize_button_assetlib()
