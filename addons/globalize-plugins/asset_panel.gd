@@ -7,16 +7,14 @@ signal asset_id_pressed(asset_id: int)
 @onready var item_container := %ItemContainer
 @onready var line_edit := $MarginContainer/VBoxContainer/LineEdit
 
+var should_rescan := false
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	#DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://addons/globalize-plugins/hello/word/there/pro/"))
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+func _exit_tree():
+	if should_rescan and Engine.has_singleton("EditorInterface"):
+		var efs = EditorInterface.get_resource_filesystem()
+		if efs:
+			print("is scanning")
+			efs.scan()
 
 
 func _on_line_edit_text_submitted(new_text):
@@ -52,7 +50,10 @@ func spawn_items(items: Array):
 			#print(item)
 			button.add_theme_constant_override("icon_max_width", 32)
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			button.pressed.connect(func(): asset_id_pressed.emit(item.asset_id))
+			button.pressed.connect(func(): 
+				asset_id_pressed.emit(item.asset_id)
+				should_rescan = true
+			)
 			#button.pressed.connect(on_item_pressed.bind(item.asset_id))
 			
 			if item.has("icon_url"):
