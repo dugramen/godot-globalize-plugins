@@ -1,11 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://dflha7n3pdaeu"]
+[gd_scene load_steps=3 format=3 uid="uid://dflha7n3pdaeu"]
 
-[ext_resource type="Texture2D" uid="uid://be8c3g2lr53td" path="res://icon.svg" id="1_rqll3"]
 [ext_resource type="Script" path="res://addons/globalize-plugins/asset_panel.gd" id="1_ytvys"]
-[ext_resource type="Texture2D" uid="uid://681m42uc8vit" path="res://addons/globalize-plugins/globalize-plugin.png" id="2_7y28y"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_co8dr"]
+font_color = Color(0.75, 0.75, 0.75, 1)
 
 [node name="PopupPanel" type="PopupPanel"]
 title = "Assets"
+position = Vector2i(0, 36)
 size = Vector2i(618, 459)
 visible = true
 borderless = false
@@ -33,34 +35,12 @@ unique_name_in_owner = true
 layout_mode = 2
 columns = 2
 
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
 layout_mode = 2
-text = "Plugin Name
-- dugramen"
-icon = ExtResource("2_7y28y")
-alignment = 0
-expand_icon = true
-
-[node name="Button2" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
-layout_mode = 2
-text = "Plugin Name
-- dugramen"
-icon = ExtResource("1_rqll3")
-alignment = 0
-
-[node name="Button3" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
-layout_mode = 2
-text = "Plugin Name
-- dugramen"
-icon = ExtResource("1_rqll3")
-alignment = 0
-
-[node name="Button4" type="Button" parent="MarginContainer/VBoxContainer/ScrollContainer/ItemContainer"]
-layout_mode = 2
-text = "Plugin Name
-- dugramen"
-icon = ExtResource("1_rqll3")
-alignment = 0
+size_flags_horizontal = 3
+text = "Search Assets"
+label_settings = SubResource("LabelSettings_co8dr")
+horizontal_alignment = 1
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 

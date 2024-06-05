@@ -65,7 +65,21 @@ func spawn_items(items: Array):
 							push_error("Couldn't get image at ", item.icon_url)
 						else:
 							var image = Image.new()
-							var error = image.load_png_from_buffer(body)
+							var extension: String = item.icon_url.get_extension()
+							var error;
+							match extension:
+								"png":
+									error = image.load_png_from_buffer(body)
+								"jpg":
+									error = image.load_jpg_from_buffer(body)
+								"svg":
+									error = image.load_svg_from_buffer(body)
+								"webp":
+									error = image.load_webp_from_buffer(body)
+								"bmp":
+									error = image.load_bmp_from_buffer(body)
+								_:
+									error = image.load_png_from_buffer(body)
 							if error != OK:
 								push_error("Couldn't load the image.")
 							else:
