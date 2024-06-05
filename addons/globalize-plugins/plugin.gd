@@ -135,7 +135,7 @@ func on_assetlib_child(child: Node):
 		await get_tree().process_frame
 		var container: HBoxContainer = child.get_child(2, true)
 		if container:
-			#print("adding buttons")
+			# Insert Button
 			var right_c := Control.new()
 			var asset_button := Button.new()
 			container.add_child(asset_button)
@@ -145,10 +145,30 @@ func on_assetlib_child(child: Node):
 			asset_button.add_theme_constant_override("icon_max_width", 24)
 			right_c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			
+			# Locate plugin title
+			var plugin_title := ""
+			var info_container: Node = child.get_child(3, true #hbox
+				).get_child(0, true #vbox
+				).get_child(0, true #EditorAssetLibraryItem
+				).get_child(0, true #hbox
+				).get_child(1, true #vbox
+				)
+			if info_container:
+				var title = info_container.get_child(0, true)
+				if title is LinkButton:
+					plugin_title = title.text
+					prints(title.text, title.uri)
+			
 			var asset_panel: PopupPanel = asset_panel_scene.instantiate() as PopupPanel
 			asset_panel.visible = false
 			asset_button.add_child(asset_panel)
-			asset_button.pressed.connect(asset_panel.popup_centered)
+			asset_button.pressed.connect(
+				func():
+					asset_panel.popup_centered()
+					if asset_panel.line_edit.text != plugin_title:
+						asset_panel.line_edit.text = plugin_title
+						asset_panel.line_edit.text_submitted.emit(plugin_title)
+			)
 			asset_panel.asset_id_pressed.connect(on_asset_download_pressed)
 
 func on_asset_download_pressed(id):
