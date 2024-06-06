@@ -76,6 +76,10 @@ func globalize_local_plugins():
 		, CONNECT_ONE_SHOT)
 
 
+func globalize_asset_plugin(asset: Dictionary):
+	global_plugin_data[asset.asset_id] = asset
+
+
 func fetch_and_install_asset(asset_id):
 	var _http := HTTPRequest.new()
 	add_child(_http)
@@ -85,9 +89,9 @@ func fetch_and_install_asset(asset_id):
 		if result != HTTPRequest.RESULT_SUCCESS:
 			push_error("Failed to get asset ", asset_id)
 			return
-		var data = JSON.parse_string(body.get_string_from_utf8())
-		print(data)
-		await download_asset(data)
+		var asset = JSON.parse_string(body.get_string_from_utf8())
+		print(asset)
+		await download_asset(asset)
 	await handler.callv(response)
 
 func download_asset(asset: Dictionary):
@@ -181,14 +185,16 @@ func on_assetlib_child(child: Node):
 						asset_panel.line_edit.text_submitted.emit(plugin_title)
 			)
 			asset_panel.asset_id_pressed.connect(
-				func(id):
+				func(asset):
 					var old_title := asset_panel.title
 					asset_panel.title = "Downloading and Installing ..."
 					asset_panel.gui_disable_input = true
-					await fetch_and_install_asset(id)
+					#await fetch_and_install_asset(asset.asset_id)
+					globalize_asset_plugin(asset)
 					asset_panel.gui_disable_input = false
 					asset_panel.title = old_title
 					asset_panel.hide()
+					print("Plugin ", asset.title, " was globalized")
 					await get_tree().process_frame
 					EditorInterface.get_resource_filesystem().scan()
 			)
