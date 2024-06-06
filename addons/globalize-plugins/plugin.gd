@@ -148,6 +148,7 @@ func on_assetlib_child(child: Node):
 	if child.name.begins_with("@EditorAssetLibraryItemDescription"):
 		#print("asset window found")
 		await get_tree().process_frame
+		
 		var container: HBoxContainer = child.get_child(2, true)
 		if container:
 			# Insert Button
@@ -193,7 +194,7 @@ func on_assetlib_child(child: Node):
 					globalize_asset_plugin(asset)
 					asset_panel.gui_disable_input = false
 					asset_panel.title = old_title
-					asset_panel.hide()
+					#asset_panel.hide()
 					print("Plugin ", asset.title, " was globalized")
 					await get_tree().process_frame
 					EditorInterface.get_resource_filesystem().scan()

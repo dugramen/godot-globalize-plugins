@@ -17,6 +17,7 @@ offset_right = 614.0
 offset_bottom = 455.0
 
 [node name="TabContainer" type="TabContainer" parent="MarginContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -36,6 +37,7 @@ clear_button_enabled = true
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/TabContainer/Browse/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="ItemContainer" type="GridContainer" parent="MarginContainer/TabContainer/Browse/VBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
@@ -61,6 +63,7 @@ clear_button_enabled = true
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/TabContainer/Globalized/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="GlobalizedItems" type="GridContainer" parent="MarginContainer/TabContainer/Globalized/VBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
