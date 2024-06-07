@@ -21,7 +21,7 @@ project/assembly_name="embedded-player"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/globalize-plugins/plugin.cfg", "res://addons/zylann.editor_debugger/plugin.cfg")
+enabled=PackedStringArray("res://addons/globalize-plugins/plugin.cfg", "res://addons/zoo_check/plugin.cfg", "res://addons/zylann.editor_debugger/plugin.cfg")
 
 [rendering]
 

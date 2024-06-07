@@ -12,6 +12,19 @@ const project_settings_key := "global_plugins/saved"
 
 var current_plugin_data: Dictionary = {}
 var global_plugin_data: Dictionary = {}
+var globalized_asset_path: String = ""
+
+func get_global_asset_paths():
+	if globalized_asset_path.is_empty(): return []
+	var plugins := []
+	for dir in DirAccess.get_directories_at(globalized_asset_path + "addons/"):
+		dir = globalized_asset_path + "addons/" + dir
+		print(dir)
+		print(DirAccess.get_files_at(dir))
+		if FileAccess.file_exists(dir + "/plugin.cfg"):
+			plugins.push_back(dir + "/plugin.cfg")
+	print(plugins)
+	return plugins
 
 func globalize_local_plugins():
 	var settings := EditorInterface.get_editor_settings()
@@ -29,6 +42,8 @@ func globalize_local_plugins():
 	
 	var paths: Array = settings.get_setting(editor_local_key)
 	var project_path := ProjectSettings.globalize_path("res://")
+	
+	paths = get_global_asset_paths() + paths
 	
 	# Load plugins at paths
 	for path: String in paths:
@@ -202,13 +217,14 @@ func on_assetlib_child(child: Node):
 
 func setup_project_settings():
 	current_plugin_data = ProjectSettings.get_setting(project_settings_key, {})
-	ProjectSettings.set_setting(project_settings_key, current_plugin_data)
-	ProjectSettings.add_property_info({
-		"name" = project_settings_key,
-		"type" = TYPE_DICTIONARY,
-	})
-	ProjectSettings.set_initial_value(project_settings_key, {})
-	ProjectSettings.set_as_internal(project_settings_key, true)
+	ProjectSettings.set_setting(project_settings_key, null)
+	#ProjectSettings.set_setting(project_settings_key, current_plugin_data)
+	#ProjectSettings.add_property_info({
+		#"name" = project_settings_key,
+		#"type" = TYPE_DICTIONARY,
+	#})
+	#ProjectSettings.set_initial_value(project_settings_key, {})
+	#ProjectSettings.set_as_internal(project_settings_key, false)
 
 func setup_editor_settings():
 	var editor_settings := EditorInterface.get_editor_settings()
@@ -217,17 +233,44 @@ func setup_editor_settings():
 	else:
 		global_plugin_data = {}
 		editor_settings.set_setting(editor_asset_key, global_plugin_data)
-	editor_settings.set_setting(editor_asset_key, global_plugin_data)
-	editor_settings.add_property_info({
-		"name" = editor_asset_key,
-		"type" = TYPE_DICTIONARY
-	})
-	editor_settings.set_initial_value(editor_asset_key, {}, false)
+	editor_settings.erase(editor_asset_key)
+	#editor_settings.set_setting(editor_asset_key, global_plugin_data)
+	#editor_settings.add_property_info({
+		#"name" = editor_asset_key,
+		#"type" = TYPE_DICTIONARY
+	#})
+	#editor_settings.set_initial_value(editor_asset_key, {}, false)
+
+static func sync_asset_changes():
+	var editor_plugins: Dictionary = EditorInterface.get_editor_settings().get_setting(editor_asset_key)
+	var project_plugins: Dictionary = ProjectSettings.get_setting(project_settings_key)
+	for asset_id in editor_plugins:
+		if project_plugins.has(asset_id):
+			var p_asset: Dictionary = project_plugins[asset_id]
+			var e_asset: Dictionary = editor_plugins[asset_id]
+			if e_asset.version_string != p_asset.version_string:
+				for key in p_asset:
+					p_asset[key] = e_asset[key]
+		else:
+			project_plugins[asset_id] = editor_plugins[asset_id]
+			EditorInterface
+
+func setup_globalized_project():
+	var paths := EditorInterface.get_editor_paths()
+	var path := paths.get_config_dir()
+	globalized_asset_path = path + "/globalized/"
+	print(globalized_asset_path)
+	if !DirAccess.dir_exists_absolute(globalized_asset_path + "addons/"):
+		DirAccess.make_dir_recursive_absolute(globalized_asset_path + "addons/")
+	if !FileAccess.file_exists(globalized_asset_path + "project.godot"):
+		var file := FileAccess.open(globalized_asset_path + "project.godot", FileAccess.WRITE)
+		file.close()
 
 func _enter_tree():
-	setup_editor_settings()
-	setup_project_settings()
-	#globalize_local_plugins()
+	#setup_editor_settings()
+	#setup_project_settings()
+	setup_globalized_project()
+	globalize_local_plugins()
 	inject_globalize_button_assetlib()
 	pass
 
