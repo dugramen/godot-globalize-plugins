@@ -21,9 +21,9 @@ func get_global_asset_paths():
 		dir = globalized_asset_path + dir
 		#print(dir)
 		#print(DirAccess.get_files_at(dir))
-		for addon in DirAccess.get_directories_at(dir + "addons/"):
-			if FileAccess.file_exists(dir + "addons/" + addon + "/plugin.cfg"):
-				plugins.push_back(dir + "addons/" + addon + "/plugin.cfg")
+		for addon in DirAccess.get_directories_at(dir + "/addons/"):
+			if FileAccess.file_exists(dir + "/addons/" + addon + "/plugin.cfg"):
+				plugins.push_back(dir + "/addons/" + addon + "/plugin.cfg")
 	print(plugins)
 	return plugins
 
@@ -90,67 +90,6 @@ func globalize_local_plugins():
 				if !already_exists:
 					EditorInterface.set_plugin_enabled(folder, true)
 		, CONNECT_ONE_SHOT)
-
-
-func globalize_asset_plugin(asset: Dictionary):
-	global_plugin_data[asset.asset_id] = asset
-
-
-func fetch_and_install_asset(asset_id):
-	var _http := HTTPRequest.new()
-	add_child(_http)
-	var err := _http.request("https://godotengine.org/asset-library/api/asset/%s" % asset_id)
-	var response = await _http.request_completed 
-	var handler := func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-		if result != HTTPRequest.RESULT_SUCCESS:
-			push_error("Failed to get asset ", asset_id)
-			return
-		var asset = JSON.parse_string(body.get_string_from_utf8())
-		print(asset)
-		await download_asset(asset)
-	await handler.callv(response)
-
-func download_asset(asset: Dictionary):
-	var _http := HTTPRequest.new()
-	add_child(_http)
-	var err := _http.request(asset.download_url)
-	var response = await _http.request_completed
-	var handler := func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-		if result != HTTPRequest.RESULT_SUCCESS:
-			push_error("Download failed from ", asset.download_url)
-			return
-		var file_path: String = "res://addons/globalize-plugins/temp/" + asset.title + ".zip"
-		var file := FileAccess.open(file_path, FileAccess.WRITE)
-		file.store_buffer(body)
-		file.close()
-		await unzip_asset(file_path)
-	await handler.callv(response)
-
-func unzip_asset(file_path):
-	var zipper := ZIPReader.new()
-	zipper.open(file_path)
-	var zipped_files := zipper.get_files()
-	var base_path := "res://addons/"
-	var prefix := zipped_files[0]
-	var addon_prefix := prefix + "addons/"
-	for path in zipped_files:
-		if !path.begins_with(addon_prefix):
-			continue
-		var content := zipper.read_file(path)
-		var stripped_path := path.trim_prefix(addon_prefix)
-		var final_path := base_path + stripped_path
-		var g_path := ProjectSettings.globalize_path(final_path)
-		prints(final_path)
-		DirAccess.remove_absolute(g_path)
-		if final_path.ends_with("/"):
-			var err = DirAccess.make_dir_recursive_absolute(g_path)
-			if err != OK:
-				push_error("Could not make directory ", final_path)
-		else:
-			var zfile := FileAccess.open(final_path, FileAccess.WRITE)
-			zfile.store_buffer(content)
-			zfile.close()
-	zipper.close()
 
 func inject_globalize_button_assetlib():
 	var main_screen := EditorInterface.get_editor_main_screen()
