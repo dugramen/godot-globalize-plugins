@@ -17,12 +17,13 @@ var globalized_asset_path: String = ""
 func get_global_asset_paths():
 	if globalized_asset_path.is_empty(): return []
 	var plugins := []
-	for dir in DirAccess.get_directories_at(globalized_asset_path + "addons/"):
-		dir = globalized_asset_path + "addons/" + dir
-		print(dir)
-		print(DirAccess.get_files_at(dir))
-		if FileAccess.file_exists(dir + "/plugin.cfg"):
-			plugins.push_back(dir + "/plugin.cfg")
+	for dir in DirAccess.get_directories_at(globalized_asset_path):
+		dir = globalized_asset_path + dir
+		#print(dir)
+		#print(DirAccess.get_files_at(dir))
+		for addon in DirAccess.get_directories_at(dir + "addons/"):
+			if FileAccess.file_exists(dir + "addons/" + addon + "/plugin.cfg"):
+				plugins.push_back(dir + "addons/" + addon + "/plugin.cfg")
 	print(plugins)
 	return plugins
 
@@ -205,8 +206,7 @@ func on_assetlib_child(child: Node):
 					var old_title := asset_panel.title
 					asset_panel.title = "Downloading and Installing ..."
 					asset_panel.gui_disable_input = true
-					#await fetch_and_install_asset(asset.asset_id)
-					globalize_asset_plugin(asset)
+					#globalize_asset_plugin(asset)
 					asset_panel.gui_disable_input = false
 					asset_panel.title = old_title
 					#asset_panel.hide()
@@ -260,11 +260,12 @@ func setup_globalized_project():
 	var path := paths.get_config_dir()
 	globalized_asset_path = path + "/globalized/"
 	print(globalized_asset_path)
-	if !DirAccess.dir_exists_absolute(globalized_asset_path + "addons/"):
-		DirAccess.make_dir_recursive_absolute(globalized_asset_path + "addons/")
-	if !FileAccess.file_exists(globalized_asset_path + "project.godot"):
-		var file := FileAccess.open(globalized_asset_path + "project.godot", FileAccess.WRITE)
-		file.close()
+	DirAccess.make_dir_recursive_absolute(globalized_asset_path)
+	#if !DirAccess.dir_exists_absolute(globalized_asset_path + "addons/"):
+		#DirAccess.make_dir_recursive_absolute(globalized_asset_path + "addons/")
+	#if !FileAccess.file_exists(globalized_asset_path + "project.godot"):
+		#var file := FileAccess.open(globalized_asset_path + "project.godot", FileAccess.WRITE)
+		#file.close()
 
 func _enter_tree():
 	#setup_editor_settings()

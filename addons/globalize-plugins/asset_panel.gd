@@ -10,12 +10,12 @@ signal asset_id_pressed(asset: Dictionary)
 @onready var tab_container: TabContainer = %TabContainer
 
 const asset_item_scene := preload("res://addons/globalize-plugins/asset_item.tscn")
-const editor_key := "global_plugins/assets"
+#const editor_key := "global_plugins/assets"
 var editor_plugins := {}
 
 func _ready():
-	if EditorInterface.get_editor_settings().has_setting(editor_key):
-		editor_plugins = EditorInterface.get_editor_settings().get_setting(editor_key)
+	#if EditorInterface.get_editor_settings().has_setting(editor_key):
+		#editor_plugins = EditorInterface.get_editor_settings().get_setting(editor_key)
 	
 	var spawned := false
 	globalized_items_container.visibility_changed.connect(
@@ -63,9 +63,9 @@ func spawn_items(items: Array, container: GridContainer, pressed_handler: Callab
 			container.add_child(node)
 			
 			var info: RichTextLabel = node.get_node("%Info") as RichTextLabel
-			var label_title = node.get_node("%Title") as Label
-			var label_author = node.get_node("%Author") as Label
-			var label_version = node.get_node("%Version") as Label
+			#var label_title = node.get_node("%Title") as Label
+			#var label_author = node.get_node("%Author") as Label
+			#var label_version = node.get_node("%Version") as Label
 			var button_update = node.get_node("%Update") as Button
 			var button_delete = node.get_node("%Delete") as Button
 			var button_add = node.get_node("%Add") as Button
@@ -90,75 +90,70 @@ func spawn_items(items: Array, container: GridContainer, pressed_handler: Callab
 			handle_button_visibility.call()
 			button_add.pressed.connect(
 				func():
-					editor_plugins[item.asset_id] = item
+					globalize_item(item)
 					handle_button_visibility.call()
 			)
 			button_delete.pressed.connect(
 				func():
-					editor_plugins.erase(item.asset_id)
+					unglobalize_item(item)
 					handle_button_visibility.call()
 			)
 			
-			#label_title.text = item.title
-			#label_author.text = item.author
-			#label_version.text = item.version_string
-			
-			#var button := CheckButton.new()
-			#button.text = item_name
-			#button.text += '\n - ' + item.get("author", "")
-			#container.add_child(button)
-			##print(item)
-			#button.add_theme_constant_override("icon_max_width", 32)
-			#button.add_theme_constant_override("h_separation", 8)
-			#button.add_theme_stylebox_override("normal", button.get_theme_stylebox("normal", "Button"))
-			#button.add_theme_stylebox_override("pressed", button.get_theme_stylebox("pressed", "Button"))
-			#button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			##button.pressed.connect(pressed_handler.bind(item))
-			#button.button_pressed = editor_plugins.has(item.asset_id)
-			#button.toggled.connect(
-				#func(val):
-					#if val:
-						#editor_plugins[item.asset_id] = item
-					#else:
-						#editor_plugins.erase(item.asset_id)
-			#)
-			##button.pressed.connect(func(): 
-				##asset_id_pressed.emit(item)
-			##)
-			#button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-			#button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			##button.pressed.connect(on_item_pressed.bind(item.asset_id))
-			
-			var _http := HTTPRequest.new()
-			add_child(_http)
-			_http.request(item.icon_url)
-			_http.request_completed.connect(
-				func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-					if result != HTTPRequest.RESULT_SUCCESS:
-						push_error("Couldn't get image at ", item.icon_url)
-					else:
-						var image = Image.new()
-						var extension: String = item.icon_url.get_extension()
-						var error;
-						match extension:
-							"png":
-								error = image.load_png_from_buffer(body)
-							"jpg":
-								error = image.load_jpg_from_buffer(body)
-							"svg":
-								error = image.load_svg_from_buffer(body)
-							"webp":
-								error = image.load_webp_from_buffer(body)
-							"bmp":
-								error = image.load_bmp_from_buffer(body)
-							_:
-								error = image.load_png_from_buffer(body)
-						if error != OK:
-							push_error("Couldn't load the image.")
-						else:
-							var texture = ImageTexture.create_from_image(image)
-							icon.texture = texture
-			)
+			var texture := await load_image(item.icon_url)
+			if texture:
+				icon.texture = texture
+
+func get_asset_path(item) -> String:
+	var config_path := EditorInterface.get_editor_paths().get_config_dir()
+	var g_path: String = config_path + "/globalized/" + item.title
+	return g_path
+
+func globalize_item(item):
+	var g_path := get_asset_path(item)
+	#var version := Engine.get_version_info()
+	#g_path += str(version.major) + "." + str(version.minor)
+	print(g_path)
+	DirAccess.make_dir_recursive_absolute(g_path)
+	if !FileAccess.file_exists(g_path + "/project.godot"):
+		var file := FileAccess.open(g_path + "/project.godot", FileAccess.WRITE)
+		file.close()
+
+func unglobalize_item(item):
+	var item_path := get_asset_path(item)
+	OS.move_to_trash(item_path)
+
+func load_image(url) -> ImageTexture:
+	var http := HTTPRequest.new()
+	add_child(http)
+	http.request(url)
+	var response = await http.request_completed
+	var handler := func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
+		if result != HTTPRequest.RESULT_SUCCESS:
+			push_error("Couldn't get image at ", url)
+			return null
+		else:
+			var image = Image.new()
+			var extension: String = url.get_extension()
+			var error;
+			match extension:
+				"png":
+					error = image.load_png_from_buffer(body)
+				"jpg":
+					error = image.load_jpg_from_buffer(body)
+				"svg":
+					error = image.load_svg_from_buffer(body)
+				"webp":
+					error = image.load_webp_from_buffer(body)
+				"bmp":
+					error = image.load_bmp_from_buffer(body)
+				_:
+					error = image.load_png_from_buffer(body)
+			if error != OK:
+				push_error("Couldn't load the image.")
+				return null
+			else:
+				return ImageTexture.create_from_image(image)
+	return handler.callv(response)
 
 func spawn_current_globalized_items():
 	#if EditorInterface.get_editor_settings().has_setting(editor_key):
