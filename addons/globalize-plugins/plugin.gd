@@ -5,6 +5,7 @@ var asset_lib: Node
 var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
 var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
 var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
+var globalize_popup_button: Button
 
 const editor_local_key := "global_plugins/paths"
 const editor_asset_key := "global_plugins/assets"
@@ -97,6 +98,18 @@ func inject_globalize_button_assetlib():
 		if child.name.begins_with("@EditorAssetLibrary"):
 			asset_lib = child
 			asset_lib.child_entered_tree.connect(on_assetlib_child)
+			
+			var hbox: HBoxContainer = child.get_child(0, true).get_child(0, true)
+			globalize_popup_button = Button.new()
+			globalize_popup_button.text = "Globalize..."
+			var panel := asset_panel_scene.instantiate()
+			panel.hide()
+			globalize_popup_button.pressed.connect(
+				func():
+					panel.popup_centered()
+			)
+			hbox.add_child(globalize_popup_button)
+			globalize_popup_button.add_child(panel)
 			break
 
 func on_assetlib_child(child: Node):
@@ -217,4 +230,5 @@ func _exit_tree():
 	if is_instance_valid(asset_lib):
 		if asset_lib.child_entered_tree.is_connected(on_assetlib_child):
 			asset_lib.child_entered_tree.disconnect(on_assetlib_child)
-	pass
+	if is_instance_valid(globalize_popup_button):
+		globalize_popup_button.queue_free()
