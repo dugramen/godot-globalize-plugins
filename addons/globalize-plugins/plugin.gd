@@ -172,13 +172,12 @@ func setup_editor_settings():
 	else:
 		global_plugin_data = {}
 		editor_settings.set_setting(editor_asset_key, global_plugin_data)
-	editor_settings.erase(editor_asset_key)
 	#editor_settings.set_setting(editor_asset_key, global_plugin_data)
-	#editor_settings.add_property_info({
-		#"name" = editor_asset_key,
-		#"type" = TYPE_DICTIONARY
-	#})
-	#editor_settings.set_initial_value(editor_asset_key, {}, false)
+	editor_settings.add_property_info({
+		"name" = editor_asset_key,
+		"type" = TYPE_DICTIONARY
+	})
+	editor_settings.set_initial_value(editor_asset_key, {}, false)
 
 static func sync_asset_changes():
 	var editor_plugins: Dictionary = EditorInterface.get_editor_settings().get_setting(editor_asset_key)
@@ -207,7 +206,7 @@ func setup_globalized_project():
 		#file.close()
 
 func _enter_tree():
-	#setup_editor_settings()
+	setup_editor_settings()
 	#setup_project_settings()
 	setup_globalized_project()
 	globalize_local_plugins()

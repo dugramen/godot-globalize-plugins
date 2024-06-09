@@ -10,12 +10,17 @@ signal asset_id_pressed(asset: Dictionary)
 @onready var tab_container: TabContainer = %TabContainer
 
 const asset_item_scene := preload("res://addons/globalize-plugins/asset_item.tscn")
-#const editor_key := "global_plugins/assets"
+const editor_key := "global_plugins/assets"
 var editor_plugins := {}
 
 func _ready():
-	#if EditorInterface.get_editor_settings().has_setting(editor_key):
-		#editor_plugins = EditorInterface.get_editor_settings().get_setting(editor_key)
+	transient = true
+	exclusive = true
+	popup_window = false
+	
+	var editor_settings := EditorInterface.get_editor_settings()
+	if editor_settings.has_setting(editor_key):
+		editor_plugins = editor_settings.get_setting(editor_key)
 	
 	var spawned := false
 	globalized_items_container.visibility_changed.connect(
@@ -90,12 +95,12 @@ func spawn_items(items: Array, container: GridContainer, pressed_handler: Callab
 			handle_button_visibility.call()
 			button_add.pressed.connect(
 				func():
-					globalize_item(item)
+					await globalize_item(item)
 					handle_button_visibility.call()
 			)
 			button_delete.pressed.connect(
 				func():
-					unglobalize_item(item)
+					await unglobalize_item(item)
 					handle_button_visibility.call()
 			)
 			
@@ -105,23 +110,35 @@ func spawn_items(items: Array, container: GridContainer, pressed_handler: Callab
 
 func get_asset_path(item) -> String:
 	var config_path := EditorInterface.get_editor_paths().get_config_dir()
-	var g_path: String = config_path + "/globalized/" + item.title
+	var g_path: String = config_path + "/globalized/" + str(item.asset_id) + " - " + item.title
 	return g_path
 
 func globalize_item(item):
 	var g_path := get_asset_path(item)
 	#var version := Engine.get_version_info()
 	#g_path += str(version.major) + "." + str(version.minor)
-	print(g_path)
+	editor_plugins[item.asset_id] = item
 	DirAccess.make_dir_recursive_absolute(g_path)
 	if !FileAccess.file_exists(g_path + "/project.godot"):
 		var file := FileAccess.open(g_path + "/project.godot", FileAccess.WRITE)
 		file.close()
-	fetch_and_install_asset(item.asset_id)
+	await fetch_and_install_asset(item.asset_id)
 
 func unglobalize_item(item):
 	var item_path := get_asset_path(item)
-	OS.move_to_trash(item_path)
+	editor_plugins.erase(item.asset_id)
+	await delete_dir_resursively(item_path)
+
+func delete_dir_resursively(path: String):
+	#print(path)
+	#print(DirAccess.get_files_at(path))
+	#print(DirAccess.get_directories_at(path))
+	for file in DirAccess.get_files_at(path):
+		#print(path + file)
+		DirAccess.remove_absolute(path + '/' + file)
+	for dir in DirAccess.get_directories_at(path):
+		delete_dir_resursively(path + '/' + dir)
+	DirAccess.remove_absolute(path)
 
 func load_image(url) -> ImageTexture:
 	var http := HTTPRequest.new()
@@ -166,7 +183,7 @@ func fetch_and_install_asset(asset_id):
 			push_error("Failed to get asset ", asset_id)
 			return
 		var asset = JSON.parse_string(body.get_string_from_utf8())
-		print(asset)
+		#print(asset)
 		await download_asset(asset)
 	await handler.callv(response)
 
@@ -202,7 +219,7 @@ func unzip_downloaded_asset(asset):
 		var stripped_path := path.trim_prefix(addon_prefix)
 		var final_path := download_to + stripped_path
 		var g_path := ProjectSettings.globalize_path(final_path)
-		prints(final_path)
+		#prints(final_path)
 		DirAccess.remove_absolute(g_path)
 		if final_path.ends_with("/"):
 			var err = DirAccess.make_dir_recursive_absolute(g_path)
@@ -219,6 +236,7 @@ func spawn_current_globalized_items():
 	#if EditorInterface.get_editor_settings().has_setting(editor_key):
 		#var data: Dictionary = EditorInterface.get_editor_settings().get_setting(editor_key)
 		#print("found ", data.values())
+	var global_path := EditorInterface.get_editor_paths().get_config_dir() + "/globalized"
 	spawn_items(editor_plugins.values(), globalized_items_container, func(item): pass)
 
 func _on_search_saved_text_changed(new_text):
