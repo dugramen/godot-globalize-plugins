@@ -82,7 +82,12 @@ func spawn_items(items: Array, container: GridContainer, pressed_handler: Callab
 			info.push_color(Color(Color.WHITE, .5))
 			info.add_text(item.author + "\n" + item.version_string)
 			
+			var buttons := [button_add, button_delete, button_update]
+			
 			var handle_button_visibility := func():
+				button_add.disabled = false
+				button_delete.disabled = false
+				button_update.disabled = false
 				if editor_plugins.has(item.asset_id):
 					button_add.visible = false
 					button_delete.visible = true
@@ -95,18 +100,24 @@ func spawn_items(items: Array, container: GridContainer, pressed_handler: Callab
 			handle_button_visibility.call()
 			button_add.pressed.connect(
 				func():
+					for button in buttons:
+						button.disabled = true
 					await globalize_item(item)
 					handle_button_visibility.call()
 			)
 			button_delete.pressed.connect(
 				func():
+					for button in buttons:
+						button.disabled = true
 					await unglobalize_item(item)
 					handle_button_visibility.call()
 			)
 			
-			var texture := await load_image(item.icon_url)
-			if texture:
-				icon.texture = texture
+			var async_load_image := func():
+				var texture := await load_image(item.icon_url)
+				if texture:
+					icon.texture = texture
+			async_load_image.call()
 
 func get_asset_path(item) -> String:
 	var config_path := EditorInterface.get_editor_paths().get_config_dir()

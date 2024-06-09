@@ -107,6 +107,7 @@ func inject_globalize_button_assetlib():
 			globalize_popup_button.pressed.connect(
 				func():
 					panel.popup_centered()
+					panel.show()
 			)
 			hbox.add_child(globalize_popup_button)
 			globalize_popup_button.add_child(panel)

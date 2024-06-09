@@ -7,7 +7,9 @@ title = "Assets"
 position = Vector2i(0, 36)
 size = Vector2i(618, 459)
 visible = true
+exclusive = true
 borderless = false
+popup_window = false
 script = ExtResource("1_ytvys")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
