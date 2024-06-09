@@ -2,7 +2,7 @@
 extends EditorPlugin
 
 var asset_lib: Node
-var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
+#var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
 var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
 var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
 var globalize_popup_button: Button
@@ -84,13 +84,14 @@ func globalize_local_plugins():
 			i += 1
 		
 		# The FileSystem dock doesn't properly scan new files if scanned immediately
-		get_tree().process_frame.connect(
-			func():
-				EditorInterface.get_resource_filesystem().scan()
-				# Don't override the enabled status if the plugin had already been added before
-				if !already_exists:
-					EditorInterface.set_plugin_enabled(folder, true)
-		, CONNECT_ONE_SHOT)
+		await get_tree().process_frame
+		EditorInterface.get_resource_filesystem().scan()
+		# Don't override the enabled status if the plugin had already been added before
+		if !already_exists:
+			EditorInterface.set_plugin_enabled(folder, true)
+		#get_tree().process_frame.connect(
+			#func():
+		#, CONNECT_ONE_SHOT)
 
 func inject_globalize_button_assetlib():
 	var main_screen := EditorInterface.get_editor_main_screen()
@@ -126,7 +127,7 @@ func on_assetlib_child(child: Node):
 			container.add_child(asset_button)
 			container.add_child(right_c)
 			asset_button.text = "Globalize"
-			asset_button.icon = globalize_icon
+			#asset_button.icon = globalize_icon
 			asset_button.add_theme_constant_override("icon_max_width", 24)
 			right_c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			
@@ -149,10 +150,10 @@ func on_assetlib_child(child: Node):
 			asset_button.add_child(asset_panel)
 			asset_button.pressed.connect(
 				func():
-					asset_panel.popup_centered()
 					if asset_panel.line_edit.text != plugin_title:
 						asset_panel.line_edit.text = plugin_title
-						asset_panel.line_edit.text_submitted.emit(plugin_title)
+						#asset_panel.line_edit.text_submitted.emit(plugin_title)
+					asset_panel.popup_centered()
 			)
 			asset_panel.asset_id_pressed.connect(
 				func(asset):

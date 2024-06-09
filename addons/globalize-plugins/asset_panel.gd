@@ -31,10 +31,10 @@ func _ready():
 				spawned = true
 	)
 
-func _on_line_edit_text_submitted(new_text):
+func _on_line_edit_text_submitted(txt = ""):
 	var url := "https://godotengine.org/asset-library/api/asset?godot_version=%s&filter=%s" % [
 		"%s.%s" % [Engine.get_version_info().major, Engine.get_version_info().minor],
-		new_text
+		line_edit.text
 	]
 	print("Getting line ", url)
 	var http := HTTPRequest.new()
@@ -252,4 +252,7 @@ func spawn_current_globalized_items():
 
 func _on_search_saved_text_changed(new_text):
 	print(new_text)
-	
+
+func _on_about_to_popup():
+	print("popping up")
+	_on_line_edit_text_submitted()

@@ -74,5 +74,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 2
 
+[connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
 [connection signal="text_submitted" from="MarginContainer/TabContainer/Browse/VBoxContainer/SearchBrowse" to="." method="_on_line_edit_text_submitted"]
 [connection signal="text_changed" from="MarginContainer/TabContainer/Globalized/VBoxContainer/SearchSaved" to="." method="_on_search_saved_text_changed"]
