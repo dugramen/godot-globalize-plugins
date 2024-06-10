@@ -1,0 +1,79 @@
+[gd_scene load_steps=2 format=3 uid="uid://dflha7n3pdaeu"]
+
+[ext_resource type="Script" path="res://addons/globalize-plugins/asset_panel.gd" id="1_ytvys"]
+
+[node name="PopupPanel" type="PopupPanel"]
+title = "Assets"
+position = Vector2i(0, 36)
+size = Vector2i(618, 459)
+visible = true
+exclusive = true
+borderless = false
+popup_window = false
+script = ExtResource("1_ytvys")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 614.0
+offset_bottom = 455.0
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Browse" type="MarginContainer" parent="MarginContainer/TabContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/TabContainer/Browse"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SearchBrowse" type="LineEdit" parent="MarginContainer/TabContainer/Browse/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search Asset Library"
+clear_button_enabled = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/TabContainer/Browse/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ItemContainer" type="GridContainer" parent="MarginContainer/TabContainer/Browse/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+
+[node name="Globalized" type="MarginContainer" parent="MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/TabContainer/Globalized"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SearchSaved" type="LineEdit" parent="MarginContainer/TabContainer/Globalized/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Search Globalized Assets"
+clear_button_enabled = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/TabContainer/Globalized/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GlobalizedItems" type="GridContainer" parent="MarginContainer/TabContainer/Globalized/VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+
+[connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
+[connection signal="text_submitted" from="MarginContainer/TabContainer/Browse/VBoxContainer/SearchBrowse" to="." method="_on_line_edit_text_submitted"]
+[connection signal="text_changed" from="MarginContainer/TabContainer/Globalized/VBoxContainer/SearchSaved" to="." method="_on_search_saved_text_changed"]
