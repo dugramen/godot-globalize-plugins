@@ -19,6 +19,10 @@ config/icon="res://icon.svg"
 
 project/assembly_name="embedded-player"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/globalize-plugins/plugin.cfg")
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

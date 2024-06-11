@@ -2,8 +2,6 @@
 extends EditorPlugin
 
 var asset_lib: Node
-#var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
-#var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
 var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
 var globalize_popup_button: Button
 
@@ -20,12 +18,9 @@ func get_global_asset_paths():
 	var plugins := []
 	for dir in DirAccess.get_directories_at(globalized_asset_path):
 		dir = globalized_asset_path + dir
-		#print(dir)
-		#print(DirAccess.get_files_at(dir))
 		for addon in DirAccess.get_directories_at(dir + "/addons/"):
 			if FileAccess.file_exists(dir + "/addons/" + addon + "/plugin.cfg"):
 				plugins.push_back(dir + "/addons/" + addon + "/plugin.cfg")
-	print(plugins)
 	return plugins
 
 func globalize_local_plugins():
@@ -89,9 +84,6 @@ func globalize_local_plugins():
 		# Don't override the enabled status if the plugin had already been added before
 		if !already_exists:
 			EditorInterface.set_plugin_enabled(folder, true)
-		#get_tree().process_frame.connect(
-			#func():
-		#, CONNECT_ONE_SHOT)
 
 func inject_globalize_button_assetlib():
 	var main_screen := EditorInterface.get_editor_main_screen()
@@ -116,7 +108,6 @@ func inject_globalize_button_assetlib():
 
 func on_assetlib_child(child: Node):
 	if child.name.begins_with("@EditorAssetLibraryItemDescription"):
-		#print("asset window found")
 		await get_tree().process_frame
 		
 		var container: HBoxContainer = child.get_child(2, true)
@@ -143,7 +134,7 @@ func on_assetlib_child(child: Node):
 				var title = info_container.get_child(0, true)
 				if title is LinkButton:
 					plugin_title = title.text
-					prints(title.text, title.uri)
+					#prints(title.text, title.uri)
 			
 			var asset_panel: PopupPanel = asset_panel_scene.instantiate() as PopupPanel
 			asset_panel.visible = false
@@ -168,17 +159,6 @@ func on_assetlib_child(child: Node):
 					await get_tree().process_frame
 					EditorInterface.get_resource_filesystem().scan()
 			)
-
-func setup_project_settings():
-	current_plugin_data = ProjectSettings.get_setting(project_settings_key, {})
-	ProjectSettings.set_setting(project_settings_key, null)
-	#ProjectSettings.set_setting(project_settings_key, current_plugin_data)
-	#ProjectSettings.add_property_info({
-		#"name" = project_settings_key,
-		#"type" = TYPE_DICTIONARY,
-	#})
-	#ProjectSettings.set_initial_value(project_settings_key, {})
-	#ProjectSettings.set_as_internal(project_settings_key, false)
 
 func setup_editor_settings():
 	var editor_settings := EditorInterface.get_editor_settings()
@@ -212,21 +192,13 @@ func setup_globalized_project():
 	var paths := EditorInterface.get_editor_paths()
 	var path := paths.get_config_dir()
 	globalized_asset_path = path + "/globalized/"
-	print(globalized_asset_path)
 	DirAccess.make_dir_recursive_absolute(globalized_asset_path)
-	#if !DirAccess.dir_exists_absolute(globalized_asset_path + "addons/"):
-		#DirAccess.make_dir_recursive_absolute(globalized_asset_path + "addons/")
-	#if !FileAccess.file_exists(globalized_asset_path + "project.godot"):
-		#var file := FileAccess.open(globalized_asset_path + "project.godot", FileAccess.WRITE)
-		#file.close()
 
 func _enter_tree():
 	setup_editor_settings()
-	#setup_project_settings()
 	setup_globalized_project()
 	globalize_local_plugins()
 	inject_globalize_button_assetlib()
-	pass
 
 func _exit_tree():
 	if is_instance_valid(asset_lib):
