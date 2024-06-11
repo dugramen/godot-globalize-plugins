@@ -3,7 +3,7 @@ extends EditorPlugin
 
 var asset_lib: Node
 #var globalize_icon := preload("res://addons/globalize-plugins/globalize-plugin.png")
-var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
+#var versions := preload("res://addons/globalize-plugins/saved_versions.tres")
 var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
 var globalize_popup_button: Button
 
