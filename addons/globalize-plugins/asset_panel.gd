@@ -204,7 +204,6 @@ func download_asset(asset: Dictionary):
 	var err := http.request(asset.download_url)
 	var response = await http.request_completed
 	var handler := func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-		print(body)
 		if result != HTTPRequest.RESULT_SUCCESS:
 			push_error("Download failed from ", asset.download_url)
 			return
