@@ -2,7 +2,7 @@
 extends EditorPlugin
 
 var asset_lib: Node
-var asset_panel_scene := preload("res://addons/globalize-plugins/asset_panel.tscn")
+var asset_panel_scene = preload("res://addons/globalize-plugins/asset_panel.tscn")
 var globalize_popup_button: Button
 
 const editor_local_key := "global_plugins/paths"

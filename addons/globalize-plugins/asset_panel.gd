@@ -13,7 +13,7 @@ const asset_item_scene := preload("res://addons/globalize-plugins/asset_item.tsc
 const editor_key := "global_plugins/assets"
 var editor_plugins := {}
 
-var plugin: EditorPlugin
+var plugin
 
 func _ready():
 	transient = true
