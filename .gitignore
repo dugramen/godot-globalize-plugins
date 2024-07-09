@@ -2,4 +2,5 @@
 .godot/
 addons/*
 !addons/globalize-plugins/
-addons/globalize-plugins/temp/
+addons/globalize-plugins/temp/*
+!addons/globalize-plugins/temp/.gitkeep
