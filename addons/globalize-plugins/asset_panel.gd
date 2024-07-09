@@ -204,6 +204,7 @@ func download_asset(asset: Dictionary):
 	var err := http.request(asset.download_url)
 	var response = await http.request_completed
 	var handler := func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
+		print(body)
 		if result != HTTPRequest.RESULT_SUCCESS:
 			push_error("Download failed from ", asset.download_url)
 			return
@@ -220,9 +221,11 @@ func unzip_downloaded_asset(asset):
 	var zip_path: String = "res://addons/globalize-plugins/temp/" + asset.title + ".zip"
 	zipper.open(zip_path)
 	var zipped_files := zipper.get_files()
-	var download_to := asset_path + "/addons/"
+	var download_to := asset_path + "/"
+	#var download_to := asset_path + "/addons/"
 	var prefix := zipped_files[0]
-	var addon_prefix := prefix + "addons/"
+	var addon_prefix := prefix
+	#var addon_prefix := prefix + "addons/"
 	for path in zipped_files:
 		if !path.begins_with(addon_prefix):
 			continue

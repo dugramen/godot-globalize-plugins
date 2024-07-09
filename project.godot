@@ -21,7 +21,7 @@ project/assembly_name="embedded-player"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/globalize-plugins/plugin.cfg", "res://addons/tileset_collision_generator_free_version/plugin.cfg")
+enabled=PackedStringArray("res://addons/globalize-plugins/plugin.cfg")
 
 [rendering]
 
