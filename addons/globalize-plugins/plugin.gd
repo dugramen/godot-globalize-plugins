@@ -136,7 +136,7 @@ func on_assetlib_child(child: Node):
 					plugin_title = title.text
 					#prints(title.text, title.uri)
 			
-			var asset_panel: PopupPanel = asset_panel_scene.instantiate() as PopupPanel
+			var asset_panel: PopupPanel = asset_panel_scene.instantiate()
 			asset_panel.visible = false
 			asset_button.add_child(asset_panel)
 			asset_button.pressed.connect(
