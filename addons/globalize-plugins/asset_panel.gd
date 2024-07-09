@@ -13,6 +13,8 @@ const asset_item_scene := preload("res://addons/globalize-plugins/asset_item.tsc
 const editor_key := "global_plugins/assets"
 var editor_plugins := {}
 
+var plugin: EditorPlugin
+
 func _ready():
 	transient = true
 	exclusive = true
@@ -134,6 +136,7 @@ func globalize_item(item):
 		var file := FileAccess.open(g_path + "/project.godot", FileAccess.WRITE)
 		file.close()
 	await fetch_and_install_asset(item.asset_id)
+	plugin.globalize_local_plugins()
 
 func unglobalize_item(item):
 	var item_path := get_asset_path(item)

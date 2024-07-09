@@ -96,6 +96,7 @@ func inject_globalize_button_assetlib():
 			globalize_popup_button = Button.new()
 			globalize_popup_button.text = "Globalize..."
 			var panel := asset_panel_scene.instantiate()
+			panel.plugin = self
 			panel.hide()
 			globalize_popup_button.pressed.connect(
 				func():
@@ -137,6 +138,7 @@ func on_assetlib_child(child: Node):
 					#prints(title.text, title.uri)
 			
 			var asset_panel: PopupPanel = asset_panel_scene.instantiate()
+			asset_panel.plugin = self
 			asset_panel.visible = false
 			asset_button.add_child(asset_panel)
 			asset_button.pressed.connect(
