@@ -41,6 +41,7 @@ func globalize_local_plugins():
 	var project_path := ProjectSettings.globalize_path("res://")
 	
 	paths = get_global_asset_paths() + paths
+	var plugin_folders_to_enable := []
 	
 	# Load plugins at paths
 	for path: String in paths:
@@ -77,13 +78,24 @@ func globalize_local_plugins():
 				func(d): return dir + '/' + d) 
 			)
 			i += 1
+			
+			if !already_exists:
+				plugin_folders_to_enable.push_back(folder)
 		
-		# The FileSystem dock doesn't properly scan new files if scanned immediately
+	# The FileSystem dock doesn't properly scan new files if scanned immediately
+	var rfs := EditorInterface.get_resource_filesystem()
+	await get_tree().process_frame
+	#print('scan 1')
+	rfs.scan()
+	
+	while rfs.is_scanning():
+		#print('waiting while scanning')
 		await get_tree().process_frame
-		EditorInterface.get_resource_filesystem().scan()
-		# Don't override the enabled status if the plugin had already been added before
-		if !already_exists:
-			EditorInterface.set_plugin_enabled(folder, true)
+	await get_tree().process_frame
+	
+	for folder in plugin_folders_to_enable:
+		EditorInterface.set_plugin_enabled(folder, true)
+
 
 func inject_globalize_button_assetlib():
 	var main_screen := EditorInterface.get_editor_main_screen()
